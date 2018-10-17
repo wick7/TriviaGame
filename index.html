@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trivia Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+
+<style>
+    body,
+    html {
+        padding: 0;
+        margin: 0;
+    }
+
+    .heading {
+        height: 100vh;
+        width: 100vw;
+        background-color: yellow;
+    }
+
+    .view {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 650px;
+        background-color: teal;
+    }
+
+    .list-group-item:hover {
+        background-color: blue;
+        color: white;
+    }
+
+</style>
+
+<body>
+
+    <div class="container-fluid heading">
+        <div class="row">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-10 view">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h1 class="display-3">Trivia Game</h1>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                        <div class="col-lg-12 text-center">
+                            <h1 class="display-4">Time Left: <span id="time">20</span> Seconds</h1>
+                        </div>
+                    </div>
+                <div class="row mt-3">
+                    <div class="col-lg-12 text-center">
+                        <h1 id="question" class="display-3"></h1>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-8">
+                        <ul id="listing-group" class="list-group text-center"></ul>
+                    </div>
+                    <div class="col-lg-2"></div>
+                </div>
+            </div>
+            <div class="col-lg-1"></div>
+        </div>
+    </div>
+
+
+</body>
+
+<script>
+
+    // Option Highlight
+
+    // $('.list-group-item').on('mouseenter', function () {
+    //     $(this).toggleClass('active');
+    // }).on('mouseleave', function () {
+    //     $(this).toggleClass('active');
+    // })
+
+    var listing = document.getElementById('listing-group');
+    var questions = document.getElementById('question');
+    var timer = document.getElementById('time');
+    
+
+    var index = 0;
+    var countDown = 19;
+
+    var currQuestion;
+    var opt;
+    var answer;
+    var selected;
+    
+
+    function timerMe() {
+        var countD = setInterval(function(){
+        countDown--
+        // console.log(countDown)
+        if(countDown === 0){
+            clearInterval(countD)
+            listing.innerHTML = 'YOU LOSE';
+
+            setTimeout(function(){
+                    resetMe()
+                }, 4000);
+            
+            
+        }
+        timer.innerHTML = countDown
+        
+    }, 1000);
+    }
+    
+
+    function resetMe() {
+        console.log('fired')
+        listing.innerHTML = ' ';
+        questions.innerHTML = ' ';
+        timer.innerHTML = ' ';
+        countDown = 19;
+        index++
+        getQuestion()
+        timerMe()
+    }
+
+    function getQuestion() {
+        
+
+        var questions = [
+        {q:'What is One?', o: ['Option 1', 'Option 2', 'Hint 3', 'This 4'], a: 'Option 2'},
+        {q:'What is Two?', o: ['Hint 1', 'This 2', 'Hint 3', 'Option 4'], a: 'Option 4'},
+        {q:'What is Three?', o: ['Option 1', 'Hint 2', 'Option 3', 'This 4'], a: 'Option 3'},
+        {q:'What is Four?', o: ['Hint 1', 'This 2', 'Option 3', 'Option 4'], a: 'Hint 2'},
+        {q:'What is Five?', o: ['Option 1', 'Hint 2', 'Option 3', 'This 4'], a: 'This 4'},
+        {q:'What is Six?', o: ['Hint 1', 'Option 2', 'This 3', 'Hint 4'], a: 'Option 2'},
+        ] 
+
+
+        currQuestion = questions[index].q;
+        opt = questions[index].o;
+        answer = questions[index].a;
+
+        renderMe(currQuestion, opt); 
+    }
+
+
+    function renderMe(curQ, optArr) {
+
+        console.log(curQ)
+        questions.innerHTML = curQ;
+
+        for(var i=0; i < optArr.length; i++) {
+            console.log(optArr[i])
+            
+            var newEl = document.createElement('li');
+            newEl.classList.add("list-group-item");
+            newEl.setAttribute("onclick" , "consoleMe(event)");
+            newEl.setAttribute("data-info", answer)
+            newEl.innerHTML = optArr[i];
+            listing.append(newEl);
+        }
+    }
+
+    function consoleMe(event) {
+        selected = event.target.innerHTML;
+        if(selected === answer) {
+            console.log('Correct!')
+        }else {
+            console.log('WRONG!')
+        }
+    }
+
+
+getQuestion()
+timerMe()
+
+
+// $(".list-group-item").on("click", function() {
+//           console.log(this.innerHTML)
+//     });
+
+
+
+
+</script>
+
+
+<!-- Bootstrap -->
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+<!-- JQuery -->
+
+
+
+</html>
+
+
+
+<!-- // var questions = [
+// {q:'What is One?', o1:'Option 1', o2:'Option 2', o3:'Hint 3', o4:'This 4'},
+// {q:'What is Two?', o1:'Hint 1', o2:'This 2', o3:'Hint 3', o4:'Option 4'},
+// {q:'What is Three?', o1:'Option 1', o2:'Hint 2', o3:'Option 3', o4:'This 4'},
+// {q:'What is Four?', o1:'Hint 1', o2:'This 2', o3:'Option 3', o4:'Option 4'},
+// {q:'What is Five?', o1:'Option 1', o2:'Hint 2', o3:'Option 3', o4:'This 4'},
+// {q:'What is Six?', o1:'Hint 1', o2:'Option 2', o3:'This 3', o4:'Hint 4'},
+// ] 
+
+// var opt1 = questions[index].o1;
+// var opt2 = questions[index].o2;
+// var opt3 = questions[index].o3;
+// var opt4 = questions[index].o4;
+
+// optArray.push(opt1);
+// optArray.push(opt2);
+// optArray.push(opt3);
+// optArray.push(opt4);
+
+// var optArray = [];
+// renderMe(currQuestion, optArray);  -->
