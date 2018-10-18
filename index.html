@@ -79,9 +79,9 @@
 
 <script>
 
-    //Two Issues: 1) New Game Button doesnt go away on reset, 2) Suspect Unanswered/right/wrong doesnt increment on second round
+    //Two Issues: 1) New Game Button doesnt go away on reset, 
 
-
+    
     var listing = document.getElementById('listing-group');
     var questions = document.getElementById('question');
     var timer = document.getElementById('time');
@@ -147,9 +147,6 @@
         }else {
             listing.innerHTML = ' ';
             questions.innerHTML = ' ';
-            right = 0;
-            wrong = 0;
-            unAnswered = 0;
             countDown = 5;
             timer.innerHTML = countDown;
         
@@ -166,6 +163,9 @@
             
             questions.innerHTML = ' ';
             listing.innerHTML = ' ';
+            right = 0;
+            wrong = 0;
+            unAnswered = 0;
             countDown = 5;
             timer.innerHTML = countDown;
             index = 0;
