@@ -54,20 +54,20 @@
                 </div>
                 <div class="row mt-2">
                         <div class="col-lg-12 text-center">
-                            <h1 class="display-4">Time Left: <span id="time">20</span> Seconds</h1>
+                            <h3 class="display-4">Time Left: <span id="time"></span> Seconds</h3>
                         </div>
                     </div>
                 <div class="row mt-3">
                     <div class="col-lg-12 text-center">
-                        <h1 id="question" class="display-3"></h1>
+                        <h3 id="question" class="display-4"></h3>
                     </div>
                 </div>
-                <div class="row mt-5">
-                    <div class="col-lg-2"></div>
-                    <div class="col-lg-8">
+                <div class="row mt-2">
+                    <div class="col-lg-3"></div>
+                    <div id="final" class="col-lg-6 text-center">
                         <ul id="listing-group" class="list-group text-center"></ul>
                     </div>
-                    <div class="col-lg-2"></div>
+                    <div class="col-lg-3"></div>
                 </div>
             </div>
             <div class="col-lg-1"></div>
@@ -79,41 +79,50 @@
 
 <script>
 
-    // Option Highlight
+    //Two Issues: 1) New Game Button doesnt go away on reset, 2) Suspect Unanswered/right/wrong doesnt increment on second round
 
-    // $('.list-group-item').on('mouseenter', function () {
-    //     $(this).toggleClass('active');
-    // }).on('mouseleave', function () {
-    //     $(this).toggleClass('active');
-    // })
 
     var listing = document.getElementById('listing-group');
     var questions = document.getElementById('question');
     var timer = document.getElementById('time');
-    
+    var endResults = document.getElementById('final');
 
+    
+    var imgEl = document.createElement('img');
     var index = 0;
-    var countDown = 19;
+    var countDown = 5;
+    var right = 0;
+    var wrong = 0;
+    var unAnswered = 0;
 
     var currQuestion;
     var opt;
     var answer;
     var selected;
+
+    //Counter
+    var countD;
+
+    timer.innerHTML = countDown;
     
 
     function timerMe() {
-        var countD = setInterval(function(){
+        countD = setInterval(function(){
         countDown--
-        // console.log(countDown)
+        
+        
         if(countDown === 0){
+            unAnswered++
             clearInterval(countD)
-            listing.innerHTML = 'YOU LOSE';
+            listing.innerHTML = '';
+            questions.innerHTML = 'YOU RAN OUT OF TIME';
+            imgEl.setAttribute("src", "https://media3.giphy.com/media/3o6ZtdHSz2YLQWG55C/giphy.gif?cid=3640f6095bc7fc116a4a4f526f1fbe6d" )
+            listing.append(imgEl);
 
             setTimeout(function(){
+                    countDown = 20;
                     resetMe()
                 }, 4000);
-            
-            
         }
         timer.innerHTML = countDown
         
@@ -122,19 +131,51 @@
     
 
     function resetMe() {
-        console.log('fired')
-        listing.innerHTML = ' ';
-        questions.innerHTML = ' ';
-        timer.innerHTML = ' ';
-        countDown = 19;
-        index++
-        getQuestion()
-        timerMe()
+        if(index >= 5){
+            countDown = 5;
+            listing.innerHTML = '';
+            questions.innerHTML = 'GAME OVER';
+            var restartButton = document.createElement('button');
+            restartButton.setAttribute("onclick" , "restartMe()");
+            restartButton.innerHTML = 'New Game';
+            listing.innerHTML = `
+            <h4>Correct Answers: ${right}</h4>
+            <h4>Incorrect Answers: ${wrong}</h4>
+            <h4>Unanswered: ${unAnswered}</h4>
+            `
+            endResults.append(restartButton);
+        }else {
+            listing.innerHTML = ' ';
+            questions.innerHTML = ' ';
+            right = 0;
+            wrong = 0;
+            unAnswered = 0;
+            countDown = 5;
+            timer.innerHTML = countDown;
+        
+            index++
+
+            getQuestion()
+            timerMe()
+        }
+
+    }
+
+
+    function restartMe() {
+            
+            questions.innerHTML = ' ';
+            listing.innerHTML = ' ';
+            countDown = 5;
+            timer.innerHTML = countDown;
+            index = 0;
+
+            getQuestion()
+            timerMe()
     }
 
     function getQuestion() {
         
-
         var questions = [
         {q:'What is One?', o: ['Option 1', 'Option 2', 'Hint 3', 'This 4'], a: 'Option 2'},
         {q:'What is Two?', o: ['Hint 1', 'This 2', 'Hint 3', 'Option 4'], a: 'Option 4'},
@@ -143,7 +184,6 @@
         {q:'What is Five?', o: ['Option 1', 'Hint 2', 'Option 3', 'This 4'], a: 'This 4'},
         {q:'What is Six?', o: ['Hint 1', 'Option 2', 'This 3', 'Hint 4'], a: 'Option 2'},
         ] 
-
 
         currQuestion = questions[index].q;
         opt = questions[index].o;
@@ -154,8 +194,8 @@
 
 
     function renderMe(curQ, optArr) {
-
-        console.log(curQ)
+        console.log('fired')
+        console.log('this' + curQ)
         questions.innerHTML = curQ;
 
         for(var i=0; i < optArr.length; i++) {
@@ -163,32 +203,49 @@
             
             var newEl = document.createElement('li');
             newEl.classList.add("list-group-item");
-            newEl.setAttribute("onclick" , "consoleMe(event)");
-            newEl.setAttribute("data-info", answer)
+            newEl.setAttribute("onclick" , "compareMe(event)");
             newEl.innerHTML = optArr[i];
             listing.append(newEl);
         }
     }
 
-    function consoleMe(event) {
+    function compareMe(event) {
+        
         selected = event.target.innerHTML;
+
         if(selected === answer) {
-            console.log('Correct!')
+            clearInterval(countD)
+            
+            right++
+            listing.innerHTML = '';
+            questions.innerHTML = 'CORRECT!!';
+            
+            imgEl.setAttribute("src", "https://media3.giphy.com/media/nqi89GMgyT3va/giphy.gif?cid=3640f6095bc7f605534b437736199fcb" )
+            listing.append(imgEl);
+            
+            
+            setTimeout(function(){
+                    resetMe()
+                }, 4000);
         }else {
             console.log('WRONG!')
+            clearInterval(countD)
+
+            wrong++
+            questions.innerHTML = 'WRONG! CORRECT ANSWER: ' + answer;
+            listing.innerHTML = '';
+            imgEl.setAttribute("src", "https://media2.giphy.com/media/l4pLY0zySvluEvr0c/giphy.gif?cid=3640f6095bc807fc62334b36519cc362" )
+            listing.append(imgEl);
+
+            setTimeout(function(){
+                    resetMe()
+                }, 4000);
         }
     }
 
 
 getQuestion()
 timerMe()
-
-
-// $(".list-group-item").on("click", function() {
-//           console.log(this.innerHTML)
-//     });
-
-
 
 
 </script>
@@ -208,27 +265,3 @@ timerMe()
 
 
 </html>
-
-
-
-<!-- // var questions = [
-// {q:'What is One?', o1:'Option 1', o2:'Option 2', o3:'Hint 3', o4:'This 4'},
-// {q:'What is Two?', o1:'Hint 1', o2:'This 2', o3:'Hint 3', o4:'Option 4'},
-// {q:'What is Three?', o1:'Option 1', o2:'Hint 2', o3:'Option 3', o4:'This 4'},
-// {q:'What is Four?', o1:'Hint 1', o2:'This 2', o3:'Option 3', o4:'Option 4'},
-// {q:'What is Five?', o1:'Option 1', o2:'Hint 2', o3:'Option 3', o4:'This 4'},
-// {q:'What is Six?', o1:'Hint 1', o2:'Option 2', o3:'This 3', o4:'Hint 4'},
-// ] 
-
-// var opt1 = questions[index].o1;
-// var opt2 = questions[index].o2;
-// var opt3 = questions[index].o3;
-// var opt4 = questions[index].o4;
-
-// optArray.push(opt1);
-// optArray.push(opt2);
-// optArray.push(opt3);
-// optArray.push(opt4);
-
-// var optArray = [];
-// renderMe(currQuestion, optArray);  -->
