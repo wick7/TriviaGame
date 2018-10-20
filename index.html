@@ -10,6 +10,8 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+    <link href="https://fonts.googleapis.com/css?family=Fahkwang" rel="stylesheet">
+
 </head>
 
 <style>
@@ -22,7 +24,22 @@
     .heading {
         height: 100vh;
         width: 100vw;
-        background-color: yellow;
+        /* background-color: yellow; */
+        background-image: url('assets/images/bg.jpeg')
+    }
+
+    .game-title {
+        font-family: 'Fahkwang', sans-serif;
+        color: white;
+    }
+
+    .underline {
+        position: relative;
+        top: 4%;
+        left: 25%;
+        width: 50%;
+        border-top: 5px solid white;
+        border-radius: 50%/100px 100px 0 0;
     }
 
     .view {
@@ -31,7 +48,23 @@
         left: 50%;
         transform: translate(-50%, -50%);
         height: 650px;
-        background-color: teal;
+        border-radius: 25px;
+    }
+
+    .view-bg {
+        position: absolute;
+        top: 0;
+        background-color: white;
+        opacity: .2;
+        height: 100%;
+        width: 100%;
+        z-index: -100;
+        border-radius: 25px;
+    }
+
+    #startBtn {
+        width: 200px;
+        height: 80px;
     }
 
     .list-group-item:hover {
@@ -41,6 +74,23 @@
 
     #time-note {
         visibility: hidden;
+        color: white;
+    }
+
+    #question {
+        color: white;
+    }
+
+    h4 {
+        color: white;
+    }
+
+    #restartBtn {
+        width: 40%;
+        position: relative;
+        top: 0;
+        left: 30%;
+        height: 65px;
     }
 
 </style>
@@ -51,29 +101,32 @@
         <div class="row">
             <div class="col-lg-1"></div>
             <div class="col-lg-10 view">
+
                 <div class="row">
                     <div class="col-lg-12 text-center">
-                        <h1 class="display-3">Trivia Game</h1>
+                        <h1 class="display-3 game-title">Rando Trivio</h1>
+                        <div class="underline"></div>
                     </div>
                 </div>
                 <div class="row mt-2">
-                        <div class="col-lg-12 text-center">
-                            <h3 id="time-note" class="display-4">Time Remaining: <span id="time"></span> Seconds</h3>
-                        </div>
+                    <div class="col-lg-12 text-center">
+                        <h3 id="time-note" class="display-4">Time Remaining: <span id="time"></span> Seconds</h3>
                     </div>
-                <div class="row mt-3">
+                </div>
+                <div class="row mt-2">
                     <div class="col-lg-12 text-center">
                         <h3 id="question" class="display-4"></h3>
                     </div>
                 </div>
-                <div class="row mt-2">
+                <div class="row mt-1">
                     <div class="col-lg-3"></div>
-                    <div id="final" class="col-lg-6 text-center">
+                    <div id="final" class="col-lg-6 text-center mt-4">
                         <ul id="listing-group" class="list-group text-center"></ul>
-                        <button id="startBtn" onclick="startMe()">Start Game</button>
+                        <button id="startBtn" class="btn btn-primary" onclick="startMe()">Start Game</button>
                     </div>
                     <div class="col-lg-3"></div>
                 </div>
+                <div class="view-bg"></div>
             </div>
             <div class="col-lg-1"></div>
         </div>
@@ -84,79 +137,154 @@
 
 <script>
 
-    //Two Issues: 1) New Game Button doesnt go away on reset, 
-
-
+    //HTML Elements
     var listing = document.getElementById('listing-group');
     var questions = document.getElementById('question');
     var timer = document.getElementById('time');
     var endResults = document.getElementById('final');
     var timeNotation = document.getElementById('time-note');
     var startGame = document.getElementById('startBtn');
-    
     var imgEl = document.createElement('img');
+
+    //Counters
     var index = 0;
-   
-    var countDown = 5;
     var right = 0;
     var wrong = 0;
     var unAnswered = 0;
 
+    //Current & Comparison  
     var currQuestion;
     var opt;
     var answer;
     var selected;
 
-    //Counter
+    //Timer
+    var countDown = 10;
     var countD;
-
     timer.innerHTML = countDown;
-    
+
+    //Functions
+    function startMe() {
+
+        startGame.remove() //Gets Rid of new game btn after first game play
+        getQuestion()
+        timerMe()
+    }
+
 
     function timerMe() {
-        timeNotation.style.visibility = 'visible';
-        countD = setInterval(function(){
-            
-            countDown--
-        if(countDown === 0){
-            unAnswered++
-            clearInterval(countD)
-            listing.innerHTML = '';
-            questions.innerHTML = 'YOU RAN OUT OF TIME';
-            imgEl.setAttribute("src", "https://media3.giphy.com/media/3o6ZtdHSz2YLQWG55C/giphy.gif?cid=3640f6095bc7fc116a4a4f526f1fbe6d" )
-            listing.append(imgEl);
 
-            setTimeout(function(){
-                    countDown = 20;
+        timeNotation.style.visibility = 'visible';
+        countD = setInterval(function () {
+
+            countDown--
+            if (countDown === 0) { //If out of Time, then below Displays
+                unAnswered++
+                clearInterval(countD)
+                listing.innerHTML = '';
+                questions.innerHTML = 'OUT OF TIME! ANSWER: ' + answer;
+                imgEl.setAttribute("src", "assets/images/timeout.webp")
+                listing.append(imgEl);
+
+                setTimeout(function () {
                     resetMe()
                 }, 4000);
-        }
-        timer.innerHTML = countDown;
-        
-    }, 1000);
-    }
-    
+            }
+            timer.innerHTML = countDown;
 
-    function resetMe() {
-        if(index >= 5){
-            countDown = 5;
+        }, 1000);
+    }
+
+    function getQuestion() {
+
+        var questions = [
+            { q: 'Which fictional city is the home to Batman?', o: ['San Francisco', 'Oakland', 'L.A.', 'Gotham'], a: 'Gotham' },
+            { q: 'In which sport would you perform the Fosbury Flop?', o: ['Pole Vault', 'Hammer Throw', 'High Jump', 'Baseball'], a: 'High Jump' },
+            { q: 'Spinach is high in which mineral?', o: ['Iron', 'Aluminium', 'Uranium', 'Zinc'], a: 'Iron' },
+            { q: 'What is a Geiger Counter used to detect?', o: ['Messy Rooms', 'Radiation', 'Gasoline', 'Carbon Monoxide'], a: 'Radiation' },
+            { q: 'Who directed the movie Jaws?', o: ['Brian Griffin', 'Martin Scorsese', 'Steven Spielberg', 'Wes Anderson'], a: 'Steven Spielberg' },
+            { q: 'Which part of the body would a chiropodist treat?', o: ['Feet', 'Back', 'Elbows', 'Left Pinky'], a: 'Feet' },
+        ]
+
+        currQuestion = questions[index].q;
+        opt = questions[index].o;
+        answer = questions[index].a;
+
+        renderMe(currQuestion, opt);
+    }
+
+
+    function renderMe(curQ, optArr) {
+
+        questions.innerHTML = curQ;
+
+        for (var i = 0; i < optArr.length; i++) {
+            console.log(optArr[i])
+
+            var newEl = document.createElement('li');
+            newEl.classList.add("list-group-item");
+            newEl.setAttribute("onclick", "compareMe(event)");
+            newEl.innerHTML = optArr[i];
+            listing.append(newEl);
+        }
+    }
+
+    function compareMe(event) {
+
+        selected = event.target.innerHTML;
+
+        if (selected === answer) {
+            clearInterval(countD)
+
+            right++
             listing.innerHTML = '';
-            questions.innerHTML = 'GAME OVER';
+            questions.innerHTML = 'CORRECT!!';
+            imgEl.setAttribute("src", "assets/images/correct.webp")
+            listing.append(imgEl);
+
+            setTimeout(function () {
+                resetMe()
+            }, 4000);
+        } else {
+            console.log('WRONG!')
+            clearInterval(countD)
+
+            wrong++
+            questions.innerHTML = 'WRONG! CORRECT ANSWER: ' + answer;
+            listing.innerHTML = '';
+            imgEl.setAttribute("src", "assets/images/wrong.webp")
+            listing.append(imgEl);
+
+            setTimeout(function () {
+                resetMe()
+            }, 4000);
+        }
+    }
+
+    //Resets after each Question
+    function resetMe() {
+        if (index >= 5) {
+            countDown = 10;
+            listing.innerHTML = '';
+            questions.innerHTML = 'Final Results';
             var restartButton = document.createElement('button');
-            restartButton.setAttribute("onclick" , "restartMe()");
-            restartButton.innerHTML = 'New Game';
+            restartButton.setAttribute("onclick", "restartMe()");
+            restartButton.setAttribute("class", "btn");
+            restartButton.setAttribute("class", "btn-primary");
+            restartButton.setAttribute("id", "restartBtn");
+            restartButton.innerHTML = 'Start Over?';
             listing.innerHTML = `
             <h4>Correct Answers: ${right}</h4>
             <h4>Incorrect Answers: ${wrong}</h4>
             <h4>Unanswered: ${unAnswered}</h4>
             `
             listing.append(restartButton);
-        }else {
+        } else {
             listing.innerHTML = ' ';
             questions.innerHTML = ' ';
-            countDown = 5;
+            countDown = 10;
             timer.innerHTML = countDown;
-        
+
             index++
 
             getQuestion()
@@ -165,102 +293,21 @@
 
     }
 
-
+    //Restarts the entire Game after first round
     function restartMe() {
-            
-            questions.innerHTML = ' ';
-            listing.innerHTML = ' ';
-            right = 0;
-            wrong = 0;
-            unAnswered = 0;
-            countDown = 5;
-            timer.innerHTML = countDown;
-            index = 0;
 
-            getQuestion()
-            timerMe()
-    }
+        questions.innerHTML = ' ';
+        listing.innerHTML = ' ';
+        right = 0;
+        wrong = 0;
+        unAnswered = 0;
+        countDown = 10;
+        timer.innerHTML = countDown;
+        index = 0;
 
-    function getQuestion() {
-        
-        var questions = [
-        {q:'What is One?', o: ['Option 1', 'Option 2', 'Hint 3', 'This 4'], a: 'Option 2'},
-        {q:'What is Two?', o: ['Hint 1', 'This 2', 'Hint 3', 'Option 4'], a: 'Option 4'},
-        {q:'What is Three?', o: ['Option 1', 'Hint 2', 'Option 3', 'This 4'], a: 'Option 3'},
-        {q:'What is Four?', o: ['Hint 1', 'This 2', 'Option 3', 'Option 4'], a: 'Hint 2'},
-        {q:'What is Five?', o: ['Option 1', 'Hint 2', 'Option 3', 'This 4'], a: 'This 4'},
-        {q:'What is Six?', o: ['Hint 1', 'Option 2', 'This 3', 'Hint 4'], a: 'Option 2'},
-        ] 
-
-        currQuestion = questions[index].q;
-        opt = questions[index].o;
-        answer = questions[index].a;
-
-        renderMe(currQuestion, opt); 
-    }
-
-
-    function renderMe(curQ, optArr) {
-        console.log('fired')
-        console.log('this' + curQ)
-        questions.innerHTML = curQ;
-
-        for(var i=0; i < optArr.length; i++) {
-            console.log(optArr[i])
-            
-            var newEl = document.createElement('li');
-            newEl.classList.add("list-group-item");
-            newEl.setAttribute("onclick" , "compareMe(event)");
-            newEl.innerHTML = optArr[i];
-            listing.append(newEl);
-        }
-    }
-
-    function compareMe(event) {
-        
-        selected = event.target.innerHTML;
-
-        if(selected === answer) {
-            clearInterval(countD)
-            
-            right++
-            listing.innerHTML = '';
-            questions.innerHTML = 'CORRECT!!';
-            
-            imgEl.setAttribute("src", "https://media3.giphy.com/media/nqi89GMgyT3va/giphy.gif?cid=3640f6095bc7f605534b437736199fcb" )
-            listing.append(imgEl);
-            
-            
-            setTimeout(function(){
-                    resetMe()
-                }, 4000);
-        }else {
-            console.log('WRONG!')
-            clearInterval(countD)
-
-            wrong++
-            questions.innerHTML = 'WRONG! CORRECT ANSWER: ' + answer;
-            listing.innerHTML = '';
-            imgEl.setAttribute("src", "https://media2.giphy.com/media/l4pLY0zySvluEvr0c/giphy.gif?cid=3640f6095bc807fc62334b36519cc362" )
-            listing.append(imgEl);
-
-            setTimeout(function(){
-                    resetMe()
-                }, 4000);
-        }
-    }
-
-
-    function startMe() {
-
-        startGame.remove()
         getQuestion()
         timerMe()
     }
-
-
-
-
 
 </script>
 
@@ -275,7 +322,5 @@
     crossorigin="anonymous"></script>
 
 <!-- JQuery -->
-
-
 
 </html>
