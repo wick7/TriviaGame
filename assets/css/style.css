@@ -1,0 +1,77 @@
+body,
+    html {
+        padding: 0;
+        margin: 0;
+    }
+
+    .heading {
+        height: 100vh;
+        width: 100vw;
+        /* background-color: yellow; */
+        background-image: url('../images/bg.jpeg')
+    }
+
+    .game-title {
+        font-family: 'Fahkwang', sans-serif;
+        color: white;
+    }
+
+    .underline {
+        position: relative;
+        top: 4%;
+        left: 25%;
+        width: 50%;
+        border-top: 5px solid white;
+        border-radius: 50%/100px 100px 0 0;
+    }
+
+    .view {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 650px;
+        border-radius: 25px;
+    }
+
+    .view-bg {
+        position: absolute;
+        top: 0;
+        background-color: white;
+        opacity: .2;
+        height: 100%;
+        width: 100%;
+        z-index: -100;
+        border-radius: 25px;
+    }
+
+    #startBtn {
+        width: 200px;
+        height: 80px;
+    }
+
+    .list-group-item:hover {
+        background-color: blue;
+        color: white;
+    }
+
+    #time-note {
+        visibility: hidden;
+        color: white;
+    }
+
+    #question {
+        color: white;
+    }
+
+    h4 {
+        color: white;
+    }
+
+    #restartBtn {
+        width: 40%;
+        position: relative;
+        top: 0;
+        left: 30%;
+        height: 65px;
+    }
